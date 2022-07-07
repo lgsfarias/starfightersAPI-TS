@@ -6,4 +6,11 @@ const getRanking = async (req: Request, res: Response) => {
   res.json({ fighters: result });
 };
 
-export { getRanking };
+const battle = async (req: Request, res: Response) => {
+  const { firstUser, secondUser }: { firstUser: string; secondUser: string } =
+    req.body;
+  const result = await services.battle(firstUser, secondUser);
+  res.json(result);
+};
+
+export { getRanking, battle };
