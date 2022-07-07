@@ -7,39 +7,10 @@ const getRanking = async () => {
 };
 
 const battle = async (firstUser: string, secondUser: string) => {
-  const firstUserRepositories = await axios(
-    `http://api.github.com/users/${firstUser}/repos`,
-  );
-  const secondUserRepositories = await axios(
-    `http://api.github.com/users/${secondUser}/repos`,
-  );
-
-  const firstUserStars = firstUserRepositories.data.reduce(
-    (acc: number, repo: any) => {
-      return acc + repo.stargazers_count;
-    },
-    0,
-  );
-
-  const secondUserStars = secondUserRepositories.data.reduce(
-    (acc: number, repo: any) => {
-      return acc + repo.stargazers_count;
-    },
-    0,
-  );
+  const firstUserStars = await getStars(firstUser);
+  const secondUserStars = await getStars(secondUser);
 
   const draw = firstUserStars === secondUserStars;
-
-  const firtUserExist = await repository.getUser(firstUser);
-  const secondUserExist = await repository.getUser(secondUser);
-
-  if (!firtUserExist) {
-    await repository.insertUser(firstUser);
-  }
-
-  if (!secondUserExist) {
-    await repository.insertUser(secondUser);
-  }
 
   if (draw) {
     await repository.hasDraw(firstUser);
@@ -75,4 +46,27 @@ const battle = async (firstUser: string, secondUser: string) => {
   }
 };
 
-export { getRanking, battle };
+const verifyIfUsersExist = async (firstUser: string, secondUser: string) => {
+  const firtUserExist = await repository.getUser(firstUser);
+  const secondUserExist = await repository.getUser(secondUser);
+
+  if (!firtUserExist) {
+    await repository.insertUser(firstUser);
+  }
+
+  if (!secondUserExist) {
+    await repository.insertUser(secondUser);
+  }
+};
+
+const getStars = async (user: string) => {
+  const userRepositories = await axios(
+    `http://api.github.com/users/${user}/repos`,
+  );
+  const stars = userRepositories.data.reduce((acc: number, repo: any) => {
+    return acc + repo.stargazers_count;
+  }, 0);
+  return stars;
+};
+
+export { getRanking, battle, verifyIfUsersExist };

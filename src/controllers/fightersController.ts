@@ -9,6 +9,7 @@ const getRanking = async (req: Request, res: Response) => {
 const battle = async (req: Request, res: Response) => {
   const { firstUser, secondUser }: { firstUser: string; secondUser: string } =
     req.body;
+  await services.verifyIfUsersExist(firstUser, secondUser);
   const result = await services.battle(firstUser, secondUser);
   res.json(result);
 };
